@@ -10,17 +10,16 @@ def call_car_crud():
     car_crud_interface.mainloop()
 
 
-#
 # def call_trademark_crud():
 #     trademark_crud_interface = Tk()
 #     trademark_crud.TrademarkAdmin(trademark_crud_interface)
 #     trademark_crud_interface.mainloop()
 #
 #
-# def call_model_crud():
-#     model_crud_interface = Tk()
-#     model_crud.ModelAdmin(model_crud_interface)
-#     model_crud_interface.mainloop()
+def call_model_crud():
+    model_crud_interface = Tk()
+    model_crud.ModelAdmin(model_crud_interface)
+    model_crud_interface.mainloop()
 
 
 def transfer_data_to_postgresql():
@@ -115,10 +114,10 @@ class AdminInterface:
         # trademark_interface_button = Button(self.master, text="Trademark CRUD interface", width=20, height=3,
         #                                     command=call_trademark_crud)
         # trademark_interface_button.grid(row=1, column=0)
-        #
-        # model_interface_button = Button(self.master, text="Model CRUD interface", width=20, height=3,
-        #                                 command=call_model_crud)
-        # model_interface_button.grid(row=2, column=0)
+
+        model_interface_button = Button(self.master, text="Model CRUD interface", width=20, height=3,
+                                        command=call_model_crud)
+        model_interface_button.grid(row=2, column=0)
 
         transfer_db_button = Button(self.master, text="Transfer from MySQL to PostgreSQL", width=30, height=3,
                                     command=transfer_data_to_postgresql)

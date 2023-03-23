@@ -127,7 +127,7 @@ class CarAdmin:
                 car = Car(make=make, model_id=model_id or None, year=year, price=price,
                           trademark_id=trademark_id or None)
                 car.car_id = car_id
-                index = self.car_listbox.get(0, tk.END).index(str(car_to_str(Car.get_by_id(car_id))))
+                index = self.car_listbox.get(0, tk.END).index(car_to_str(Car.get_by_id(car_id)))
                 self.car_listbox.delete(index)
                 car.save()
                 self.car_listbox.insert(0, car_to_str(car))

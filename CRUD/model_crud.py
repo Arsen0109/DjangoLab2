@@ -1,60 +1,10 @@
 import tkinter as tk
 import tkinter.messagebox as messagebox
-import mysql.connector
+from models import CarModel
 
 
-class Model:
-    def __init__(self, model_name, car_id):
-        self.model_name = model_name
-        self.car_id = car_id
-        self.model_id = None
-
-    def __str__(self):
-        return f"{self.model_id} {self.model_name} {self.car_id}"
-
-
-class ModelDB:
-    def __init__(self):
-        self.conn = mysql.connector.connect(host='localhost', user='root', password='@rsen2003', db='cartrademark')
-        self.mysql_cursor = self.conn.cursor()
-
-    def add_model(self, model):
-        try:
-            self.mysql_cursor.execute(f"INSERT INTO models(model, car_id) VALUES(%s, %s)",
-                                      (model.model_name, model.car_id))
-            self.conn.commit()
-        except():
-            self.mysql_cursor.execute(f"INSERT INTO models(model) VALUES(%s)", tuple([model.model_name]))
-            self.conn.commit()
-
-    def get_all_models(self):
-        self.mysql_cursor.execute("SELECT * FROM models")
-        rows = self.mysql_cursor.fetchall()
-        models = []
-        for row in rows:
-            model = Model(row[1], row[2])
-            model.model_id = row[0]
-            models.append(model)
-        return models
-
-    def get_model_by_id(self, model_id):
-        self.mysql_cursor.execute(f"SELECT * FROM models WHERE model_id={model_id}")
-        row = self.mysql_cursor.fetchone()
-        if row:
-            model = Model(row[1], row[2])
-            model.model_id = row[0]
-            return model
-        else:
-            return None
-
-    def update_model(self, model, model_id):
-        self.mysql_cursor.execute(f"UPDATE models SET model=%s, car_id=%s WHERE model_id=%s",
-                                  (model.model_name, model.car_id, model_id))
-        self.conn.commit()
-
-    def delete_model(self, model_id):
-        self.mysql_cursor.execute(f"DELETE FROM models WHERE model_id={model_id}")
-        self.conn.commit()
+def model_to_str(model):
+    return f"{model.model_id} {model.model} {model.car_id}"
 
 
 class ModelAdmin:
@@ -103,33 +53,33 @@ class ModelAdmin:
 
     def fill_model_listbox(self):
         self.model_listbox.delete(0, tk.END)
-        for model in ModelDB().get_all_models():
-            self.model_listbox.insert(0, model)
+        for model in CarModel.select():
+            self.model_listbox.insert(0, model_to_str(model))
 
     def show_model_by_id(self):
         model_id = self.model_id_entry.get()
         if model_id:
-            model = ModelDB().get_model_by_id(model_id)
+            model = CarModel.get_by_id(model_id)
             self.model_entry.delete(0, tk.END)
-            self.model_entry.insert(0, model.model_name)
+            self.model_entry.insert(0, model.model)
             self.car_id_entry.delete(0, tk.END)
             self.car_id_entry.insert(0, model.car_id)
             self.model_id_entry.delete(0, tk.END)
-            self.model_id_entry.insert(0, model.model_name)
+            self.model_id_entry.insert(0, model.model_id)
         else:
             messagebox.showerror("Error", "Field car_id is empty.")
 
     def add_model(self):
         model_name = self.model_entry.get()
         car_id = self.car_id_entry.get()
-        model = Model(model_name, car_id or None)
+        model = CarModel(model_id=None, model=model_name, car_id=car_id or None)
         if model_name and car_id:
-            ModelDB().add_model(model)
+            model.save()
             self.clear_form()
             self.info_label["text"] = "Model successfully added to database"
             self.info_label["bg"] = "Green"
         elif model_name:
-            ModelDB().add_model(model)
+            model.save()
             self.clear_form()
             self.info_label["text"] = "Warning, added model without foreign key, please update it later or delete"
             self.info_label["bg"] = "Yellow"
@@ -143,12 +93,12 @@ class ModelAdmin:
             model_name = self.model_entry.get()
             car_id = self.car_id_entry.get() or None
             if model_name:
-                model = Model(model_name, car_id)
+                model = CarModel(model=model_name, car_id=car_id)
                 model.model_id = model_id
-                index = self.model_listbox.get(0, tk.END).index(str(ModelDB().get_model_by_id(model_id)))
+                index = self.model_listbox.get(0, tk.END).index(model_to_str(CarModel.get_by_id(model_id)))
                 self.model_listbox.delete(index)
-                ModelDB().update_model(model, model_id)
-                self.model_listbox.insert(0, model)
+                model.save()
+                self.model_listbox.insert(0, model_to_str(model))
                 self.clear_form()
                 self.info_label["text"] = "Model successfully updated"
                 self.info_label["bg"] = "Green"
@@ -160,9 +110,9 @@ class ModelAdmin:
     def delete_model(self):
         model_id = self.model_id_entry.get()
         if model_id:
-            index = self.model_listbox.get(0, tk.END).index(str(ModelDB().get_model_by_id(model_id)))
+            index = self.model_listbox.get(0, tk.END).index(model_to_str(CarModel.get_by_id(model_id)))
             self.model_listbox.delete(index)
-            ModelDB().delete_model(model_id)
+            CarModel.delete_by_id(model_id)
             self.clear_form()
             self.info_label["text"] = "Model successfully deleted from database"
             self.info_label["bg"] = "Green"
