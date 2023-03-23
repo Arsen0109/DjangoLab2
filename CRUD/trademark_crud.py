@@ -1,54 +1,10 @@
 import tkinter as tk
 import tkinter.messagebox as messagebox
-import mysql.connector
+from models import CarTrademark
 
 
-class Trademark:
-    def __init__(self, trademark_name):
-        self.trademark_name = trademark_name
-        self.trademark_id = None
-
-    def __str__(self):
-        return f"{self.trademark_id} {self.trademark_name}"
-
-
-class TrademarkDB:
-    def __init__(self):
-        self.conn = mysql.connector.connect(host='localhost', user='root', password='@rsen2003', db='cartrademark')
-        self.mysql_cursor = self.conn.cursor()
-
-    def add_trademark(self, trademark):
-        self.mysql_cursor.execute(f"INSERT INTO cartrademarks(trademark) VALUES(%s)", tuple([trademark.trademark_name]))
-        self.conn.commit()
-
-    def get_all_trademarks(self):
-        self.mysql_cursor.execute("SELECT * FROM cartrademarks")
-        rows = self.mysql_cursor.fetchall()
-        trademarks = []
-        for row in rows:
-            trademark = Trademark(row[1])
-            trademark.trademark_id = row[0]
-            trademarks.append(trademark)
-        return trademarks
-
-    def get_trademark_by_id(self, trademark_id):
-        self.mysql_cursor.execute(f"SELECT * FROM cartrademarks WHERE trademark_id={trademark_id}")
-        row = self.mysql_cursor.fetchone()
-        if row:
-            trademark = Trademark(row[1])
-            trademark.trademark_id = row[0]
-            return trademark
-        else:
-            return None
-
-    def update_trademark(self, trademark, trademark_id):
-        self.mysql_cursor.execute(f"UPDATE cartrademarks SET trademark=%s WHERE trademark_id=%s",
-                                  (trademark.trademark_name, trademark_id))
-        self.conn.commit()
-
-    def delete_trademark(self, trademark_id):
-        self.mysql_cursor.execute(f"DELETE FROM cartrademarks WHERE trademark_id={trademark_id}")
-        self.conn.commit()
+def trademark_to_str(trademark):
+    return f"{trademark.trademark_id} {trademark.trademark}"
 
 
 class TrademarkAdmin:
@@ -93,15 +49,15 @@ class TrademarkAdmin:
 
     def fill_trademark_listbox(self):
         self.trademark_listbox.delete(0, tk.END)
-        for trademark in TrademarkDB().get_all_trademarks():
-            self.trademark_listbox.insert(0, trademark)
+        for trademark in CarTrademark.select():
+            self.trademark_listbox.insert(0, trademark_to_str(trademark))
 
     def show_trademark_by_id(self):
         trademark_id = self.trademark_id_entry.get()
         if trademark_id:
-            trademark = TrademarkDB().get_trademark_by_id(trademark_id)
+            trademark = CarTrademark.get_by_id(trademark_id)
             self.trademark_entry.delete(0, tk.END)
-            self.trademark_entry.insert(0, trademark.trademark_name)
+            self.trademark_entry.insert(0, trademark.trademark)
             self.trademark_id_entry.delete(0, tk.END)
             self.trademark_id_entry.insert(0, trademark.trademark_id)
         else:
@@ -109,9 +65,9 @@ class TrademarkAdmin:
 
     def add_trademark(self):
         car_trademark = self.trademark_entry.get()
-        trademark = Trademark(car_trademark)
+        trademark = CarTrademark(trademark_id=None, trademark=car_trademark)
         if car_trademark:
-            TrademarkDB().add_trademark(trademark)
+            trademark.save()
             self.clear_form()
             self.info_label["text"] = "Trademark successfully added to database"
             self.info_label["fg"] = "Green"
@@ -124,12 +80,13 @@ class TrademarkAdmin:
         if trademark_id:
             car_trademark = self.trademark_entry.get()
             if car_trademark:
-                trademark = Trademark(car_trademark)
+                trademark = CarTrademark(trademark=car_trademark)
                 trademark.trademark_id = trademark_id
-                index = self.trademark_listbox.get(0, tk.END).index(str(TrademarkDB().get_trademark_by_id(trademark_id)))
+                index = self.trademark_listbox.get(0, tk.END)\
+                    .index(trademark_to_str(CarTrademark.get_by_id(trademark_id)))
                 self.trademark_listbox.delete(index)
-                TrademarkDB().update_trademark(trademark, trademark_id)
-                self.trademark_listbox.insert(0, trademark)
+                trademark.save()
+                self.trademark_listbox.insert(0, trademark_to_str(trademark))
                 self.clear_form()
                 self.info_label["text"] = "Trademark successfully updated"
                 self.info_label["fg"] = "Green"
@@ -141,9 +98,9 @@ class TrademarkAdmin:
     def delete_trademark(self):
         trademark_id = self.trademark_id_entry.get()
         if trademark_id:
-            index = self.trademark_listbox.get(0, tk.END).index(str(TrademarkDB().get_trademark_by_id(trademark_id)))
+            index = self.trademark_listbox.get(0, tk.END).index(trademark_to_str(CarTrademark.get_by_id(trademark_id)))
             self.trademark_listbox.delete(index)
-            TrademarkDB().delete_trademark(trademark_id)
+            CarTrademark.delete_by_id(trademark_id)
             self.clear_form()
             self.info_label["text"] = "Car successfully deleted from database"
             self.info_label["fg"] = "Green"
@@ -167,7 +124,3 @@ class TrademarkAdmin:
     def parse_trademark(self, trademark):
         trademark_id, car_trademark = trademark.split(" ")
         return trademark_id, car_trademark
-
-
-
-

@@ -66,4 +66,3 @@ class CarPgSQL(Model):
     class Meta:
         database = pg_db
         table_name = 'cars'
-
