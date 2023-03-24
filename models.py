@@ -2,6 +2,7 @@ from peewee import *
 
 mysql_db = MySQLDatabase('cartrademark', user='root', password='@rsen2003', host='localhost', port=3306)
 pg_db = PostgresqlDatabase('cartrademarks', user='postgres', password='@rsen2003', host='localhost', port=5432)
+sqlite_db = SqliteDatabase("cars.db")
 
 
 class CarTrademark(Model):
@@ -65,4 +66,14 @@ class CarPgSQL(Model):
 
     class Meta:
         database = pg_db
+        table_name = 'cars'
+
+
+class CarSqlite(Model):
+    car_id = IntegerField(primary_key=True)
+    model = CharField()
+    price = IntegerField()
+
+    class Meta:
+        database = sqlite_db
         table_name = 'cars'

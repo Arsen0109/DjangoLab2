@@ -1,7 +1,7 @@
 from tkinter import *
 from CRUD import car_crud, trademark_crud, model_crud
 from models import *
-from peewee import MySQLDatabase, PostgresqlDatabase
+from peewee import MySQLDatabase, PostgresqlDatabase, SqliteDatabase
 
 
 def call_car_crud():
@@ -38,66 +38,43 @@ def transfer_data_to_postgresql():
     for car in Car.select():
         new_car = CarPgSQL(car_id=car.car_id, make=car.make, model_id=None, year=car.year,
                            price=car.price, trademark_id=car.trademark_id)
-        CarPgSQL.delete_by_id(new_car.car_id)
+        CarPgSQL.delete_by_id(car.car_id)
         new_car.save(force_insert=True)
 
     for model in CarModel.select():
         new_model = CarModelPgSQL(model_id=model.model_id, model=model.model, car_id=model.car_id)
-        CarModelPgSQL.delete_by_id(new_model.model_id)
+        CarModelPgSQL.delete_by_id(model.model_id)
         new_model.save(force_insert=True)
 
-    for car in Car.select():
-        new_car = CarPgSQL(car_id=car.car_id, make=car.make, model_id=car.model_id, year=car.year,
-                           price=car.price, trademark_id=car.trademark_id)
-        CarPgSQL.delete_by_id(new_car.car_id)
-        new_car.save(force_insert=True)
-
-    for model in CarModel.select():
-        new_model = CarModelPgSQL(model_id=model.model_id, model=model.model, car_id=model.car_id)
-        CarModelPgSQL.delete_by_id(new_model.model_id)
-        new_model.save(force_insert=True)
-
+    for car in CarPgSQL.select():
+        car.model_id = Car.get_by_id(car.car_id).model_id
+        car.save()
     mysql_db.close()
     pg_db.close()
 
 
 def transfer_data_to_sqlite():
-    pass
+    pg_db = PostgresqlDatabase('cartrademarks', user='postgres', password='@rsen2003', host='localhost', port=5432)
+    sqlite_db = SqliteDatabase("cars.db")
 
-
-#     postgres_conn = psycopg2.connect(host='localhost', user='postgres', password='@rsen2003', dbname='cartrademarks')
-#     sqlite_conn = sqlite3.connect('cartrademarks.db')
-#
-#     postgres_cursor = postgres_conn.cursor()
-#     sqlite_cursor = sqlite_conn.cursor()
-#
-#     sqlite_cursor.execute("DROP TABLE IF EXISTS cars")
-#     sqlite_conn.commit()
-#
-#     sqlite_cursor.execute("CREATE TABLE IF NOT EXISTS cars(car_id INT PRIMARY KEY, model VARCHAR(40),"
-#                           "price INT)")
-#     sqlite_conn.commit()
-#
-#     # Retrieve data from tables and join it
-#     postgres_cursor.execute("SELECT cars.car_id, models.model, cars.price FROM "
-#                             "cars JOIN models ON cars.model_id = models.model_id WHERE cars.car_id IN "
-#                             "(SELECT car_id FROM cars WHERE cars.year > 2019);")
-#     table11_data = postgres_cursor.fetchall()
-#
-#     # Insert data into first table
-#     for row in table11_data:
-#         sqlite_cursor.execute(
-#             "INSERT INTO cars(car_id, model, price) VALUES (?, ?, ?)", (row[0], row[1], row[2])
-#         )
-#     sqlite_conn.commit()
-#
-#     # Close connections
-#     postgres_cursor.close()
-#     postgres_conn.close()
-#
-#     print(sqlite_cursor.execute("SELECT * FROM cars").fetchall())
-#     sqlite_cursor.close()
-#     sqlite_conn.close()
+    pg_db.connect()
+    sqlite_db.connect()
+    sqlite_db.drop_tables(CarSqlite)
+    CarSqlite.create_table()
+    models_dict = {}
+    cars_list = []
+    for model in CarModelPgSQL.select():
+        models_dict[model.model_id] = model.model
+    for car in CarPgSQL.select().where(CarPgSQL.year >= 2018):
+        cars_list.append({"car_id": car.car_id, "model": models_dict[car.model_id], "price": car.price})
+    print(cars_list)
+    with sqlite_db.atomic():
+        query = CarSqlite.insert_many(cars_list)
+        query.execute()
+    for car in CarSqlite.select():
+        print(f"{car.car_id} {car.model} {car.price}")
+    pg_db.close()
+    sqlite_db.close()
 
 
 class AdminInterface:

@@ -126,7 +126,7 @@ class ModelAdmin:
 
     def on_select_model(self, event):
         index = self.model_listbox.curselection()
-        if index:
+        if index: 
             model = self.model_listbox.get(index)
             model_id, model_name, car_id = self.parse_model(model)
             self.model_entry.delete(0, tk.END)
