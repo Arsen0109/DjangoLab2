@@ -23,7 +23,8 @@ def call_model_crud():
 
 
 def transfer_data_to_postgresql():
-    mysql_db = MySQLDatabase('cartrademark', user='root', password='@rsen2003', host='localhost', port=3306)
+    mysql_db = MySQLDatabase('cartrademark', user='root',
+                             password='@rsen2003', host='localhost', port=3306)
     pg_db = PostgresqlDatabase('cartrademarks', user='postgres', password='@rsen2003', host='localhost', port=5432)
 
     mysql_db.connect()
