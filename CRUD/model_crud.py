@@ -10,7 +10,7 @@ def model_to_str(model):
 class ModelAdmin:
     def __init__(self, master):
         self.master = master
-        self.master.title("Car Admin")
+        self.master.title("Model admin")
         self.model_listbox = tk.Listbox(self.master, width=40, height=20)
         self.model_entry = tk.Entry(self.master)
         self.car_id_entry = tk.Entry(self.master)
@@ -20,33 +20,33 @@ class ModelAdmin:
         self.fill_model_listbox()
 
     def init_widgets(self):
-        tk.Label(self.master, text="Model CRUD:", font="Arial 10 bold").grid(row=0, column=0)
+        tk.Label(self.master, text="Адмінка для Моделей авто:", font="Arial 10 bold").grid(row=0, column=0)
 
-        tk.Label(self.master, text="Model").grid(row=1, column=0)
+        tk.Label(self.master, text="Модель").grid(row=1, column=0)
         self.model_entry.grid(row=1, column=1)
 
-        tk.Label(self.master, text="Car_ID").grid(row=2, column=0)
+        tk.Label(self.master, text="ID авто").grid(row=2, column=0)
         self.car_id_entry.grid(row=2, column=1)
 
-        tk.Label(self.master, text="Model_ID").grid(row=3, column=0)
+        tk.Label(self.master, text="ID моделі").grid(row=3, column=0)
         self.model_id_entry.grid(row=3, column=1)
 
         self.model_listbox.grid(row=4, column=0, columnspan=2)
         self.model_listbox.bind("<<ListboxSelect>>", self.on_select_model)
 
-        get_button = tk.Button(self.master, text="Get model", command=self.show_model_by_id)
+        get_button = tk.Button(self.master, text="Отримати модель", command=self.show_model_by_id)
         get_button.grid(row=3, column=2)
 
-        add_button = tk.Button(self.master, text="Add", command=self.add_model)
+        add_button = tk.Button(self.master, text="Додати модель", command=self.add_model)
         add_button.grid(row=7, column=0)
 
-        update_button = tk.Button(self.master, text="Update", command=self.update_model)
+        update_button = tk.Button(self.master, text="Оновити модель", command=self.update_model)
         update_button.grid(row=7, column=1)
 
-        delete_button = tk.Button(self.master, text="Delete", command=self.delete_model)
+        delete_button = tk.Button(self.master, text="Видалити модель", command=self.delete_model)
         delete_button.grid(row=7, column=2)
 
-        clear_button = tk.Button(self.master, text="Clear", command=self.clear_form)
+        clear_button = tk.Button(self.master, text="Очистити форми", command=self.clear_form)
         clear_button.grid(row=7, column=3)
 
         self.info_label.grid(row=6, column=1)
@@ -67,7 +67,7 @@ class ModelAdmin:
             self.model_id_entry.delete(0, tk.END)
             self.model_id_entry.insert(0, model.model_id)
         else:
-            messagebox.showerror("Error", "Field car_id is empty.")
+            messagebox.showerror("Error", "Поле ID є обовязковим.")
 
     def add_model(self):
         model_name = self.model_entry.get()
@@ -76,15 +76,15 @@ class ModelAdmin:
         if model_name and car_id:
             model.save()
             self.clear_form()
-            self.info_label["text"] = "Model successfully added to database"
+            self.info_label["text"] = "Модель успішно додана до БД"
             self.info_label["bg"] = "Green"
         elif model_name:
             model.save()
             self.clear_form()
-            self.info_label["text"] = "Warning, added model without foreign key, please update it later or delete"
+            self.info_label["text"] = "Увага додана модель без зовнішніх ключів, будь ласка оновіть її пізніше."
             self.info_label["bg"] = "Yellow"
         else:
-            messagebox.showerror("Error", "At least field model is required.")
+            messagebox.showerror("Error", "Як мінімум поле Модель є обовязковим.")
         self.fill_model_listbox()
 
     def update_model(self):
@@ -100,12 +100,12 @@ class ModelAdmin:
                 model.save()
                 self.model_listbox.insert(0, model_to_str(model))
                 self.clear_form()
-                self.info_label["text"] = "Model successfully updated"
+                self.info_label["text"] = "Модель успішно оновлена."
                 self.info_label["bg"] = "Green"
             else:
-                messagebox.showerror("Error", "At least model field is required.")
+                messagebox.showerror("Error", "Як мінімум поле Модель є обовязковим.")
         else:
-            messagebox.showerror("Error", "Field model_id is required.")
+            messagebox.showerror("Error", "Поле ID є обовязковим.")
 
     def delete_model(self):
         model_id = self.model_id_entry.get()
@@ -114,10 +114,10 @@ class ModelAdmin:
             self.model_listbox.delete(index)
             CarModel.delete_by_id(model_id)
             self.clear_form()
-            self.info_label["text"] = "Model successfully deleted from database"
+            self.info_label["text"] = "Модель успішно видалена з БД"
             self.info_label["bg"] = "Green"
         else:
-            messagebox.showerror("Error", "Please select a car to delete.")
+            messagebox.showerror("Error", "Поле ID є обовязковим.")
 
     def clear_form(self):
         self.model_entry.delete(0, tk.END)

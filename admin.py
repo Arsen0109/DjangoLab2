@@ -84,23 +84,23 @@ class AdminInterface:
         self.init_widgets()
 
     def init_widgets(self):
-        car_interface_button = Button(self.master, text="Car CRUD interface", command=call_car_crud,
+        car_interface_button = Button(self.master, text="Адмінка для автомобілів", command=call_car_crud,
                                       width=20, height=3)
         car_interface_button.grid(row=0, column=0)
 
-        trademark_interface_button = Button(self.master, text="Trademark CRUD interface", width=20, height=3,
+        trademark_interface_button = Button(self.master, text="Адмінка для компаній", width=20, height=3,
                                             command=call_trademark_crud)
         trademark_interface_button.grid(row=1, column=0)
 
-        model_interface_button = Button(self.master, text="Model CRUD interface", width=20, height=3,
+        model_interface_button = Button(self.master, text="Адмінка для моделей авто", width=20, height=3,
                                         command=call_model_crud)
         model_interface_button.grid(row=2, column=0)
 
-        transfer_db_button = Button(self.master, text="Transfer from MySQL to PostgreSQL", width=30, height=3,
+        transfer_db_button = Button(self.master, text="Перенести дані з MySQL до PostgreSQL", width=30, height=3,
                                     command=transfer_data_to_postgresql)
         transfer_db_button.grid(row=1, column=2)
 
-        transfer_db_button = Button(self.master, text="Transfer from PostgreSQL to SQLite", width=30, height=3,
+        transfer_db_button = Button(self.master, text="Перенести дані з PostgreSQL до SQLite", width=30, height=3,
                                     command=transfer_data_to_sqlite)
         transfer_db_button.grid(row=0, column=2)
 

@@ -23,47 +23,47 @@ class CarAdmin:
         self.fill_car_listbox()
 
     def init_widgets(self):
-        tk.Label(self.master, text="Create car:", font="Arial 10 bold").grid(row=0, column=0)
-        make_label = tk.Label(self.master, text="Make:")
+        tk.Label(self.master, text="Створити авто:", font="Arial 10 bold").grid(row=0, column=0)
+        make_label = tk.Label(self.master, text="Марка:")
         make_label.grid(row=1, column=0)
         self.make_entry.grid(row=1, column=1)
 
-        model_label = tk.Label(self.master, text="Model_ID:")
+        model_label = tk.Label(self.master, text="ID моделі авто:")
         model_label.grid(row=2, column=0)
         self.model_id_entry.grid(row=2, column=1)
 
-        year_label = tk.Label(self.master, text="Year:")
+        year_label = tk.Label(self.master, text="Рік:")
         year_label.grid(row=3, column=0)
         self.year_entry.grid(row=3, column=1)
 
-        price_label = tk.Label(self.master, text="Price:")
+        price_label = tk.Label(self.master, text="Ціна:")
         price_label.grid(row=4, column=0)
         self.price_entry.grid(row=4, column=1)
 
-        trademark_label = tk.Label(self.master, text="Trademark_ID:")
+        trademark_label = tk.Label(self.master, text="ID компанії продавця:")
         trademark_label.grid(row=5, column=0)
         self.trademark_id_entry.grid(row=5, column=1)
 
-        tk.Label(self.master, text="Get car by car_id", font="Arial 10 bold").grid(row=6, column=0)
-        tk.Label(self.master, text="Car ID:").grid(row=7, column=0)
+        tk.Label(self.master, text="Отримати авто за id", font="Arial 10 bold").grid(row=6, column=0)
+        tk.Label(self.master, text="ID авто:").grid(row=7, column=0)
         self.car_id_entry.grid(row=7, column=1)
 
         self.car_listbox.grid(row=8, column=0, columnspan=2)
         self.car_listbox.bind("<<ListboxSelect>>", self.on_select_car)
 
-        get_button = tk.Button(self.master, text="Get Car", command=self.show_car_by_id)
+        get_button = tk.Button(self.master, text="Отримати авто", command=self.show_car_by_id)
         get_button.grid(row=7, column=2)
 
-        add_button = tk.Button(self.master, text="Add", command=self.add_car)
+        add_button = tk.Button(self.master, text="Додати авто", command=self.add_car)
         add_button.grid(row=11, column=0)
 
-        update_button = tk.Button(self.master, text="Update", command=self.update_car)
+        update_button = tk.Button(self.master, text="Оновити авто", command=self.update_car)
         update_button.grid(row=11, column=1)
 
-        delete_button = tk.Button(self.master, text="Delete", command=self.delete_car)
+        delete_button = tk.Button(self.master, text="Видалити авто", command=self.delete_car)
         delete_button.grid(row=11, column=2)
 
-        clear_button = tk.Button(self.master, text="Clear", command=self.clear_form)
+        clear_button = tk.Button(self.master, text="Очистити форми", command=self.clear_form)
         clear_button.grid(row=11, column=3)
 
         self.info_label.grid(row=10, column=1)
@@ -88,7 +88,7 @@ class CarAdmin:
             self.trademark_id_entry.delete(0, tk.END)
             self.trademark_id_entry.insert(0, car.trademark_id or '')
         else:
-            messagebox.showerror("Error", "Field car_id is empty.")
+            messagebox.showerror("Error", "Поле ID є обовязковим.")
 
     def add_car(self):
         make = self.make_entry.get()
@@ -100,7 +100,7 @@ class CarAdmin:
         if make and year and price and model_id and trademark_id:
             car.save()
             self.clear_form()
-            self.info_label["text"] = "Car successfully added to database"
+            self.info_label["text"] = "Авто успішно додане до БД"
             self.info_label["bg"] = "Green"
         elif make and year and price:
             car.model_id = None
@@ -108,11 +108,10 @@ class CarAdmin:
             car.save()
             self.car_listbox.insert(tk.END, car_to_str(car))
             self.clear_form()
-            self.info_label["text"] = "Warning foreign keys are missing, added car without foreign keys" \
-                                      " \n please update it later or delete"
+            self.info_label["text"] = "Увага, відсутні зовнішні ключі, юудь ласка додайте їх потім при потребі"
             self.info_label["bg"] = "Yellow"
         else:
-            messagebox.showerror("Error", "All fields are required.")
+            messagebox.showerror("Error", "Як мінімум поля марки року та ціни є обовязковими")
         self.fill_car_listbox()
 
     def update_car(self):
@@ -132,12 +131,12 @@ class CarAdmin:
                 car.save()
                 self.car_listbox.insert(0, car_to_str(car))
                 self.clear_form()
-                self.info_label["text"] = "Car successfully updated"
+                self.info_label["text"] = "Авто успішно оновлене"
                 self.info_label["bg"] = "Green"
             else:
-                messagebox.showerror("Error", "At least make year and price fields are required.")
+                messagebox.showerror("Error", "Як мінімум поля марки року та ціни є обовязковими")
         else:
-            messagebox.showerror("Error", "Field car_id is required.")
+            messagebox.showerror("Error", "Поле ID є обовязковим.")
 
     def delete_car(self):
         car_id = self.car_id_entry.get()
@@ -146,10 +145,10 @@ class CarAdmin:
             self.car_listbox.delete(index)
             Car.delete_by_id(car_id)
             self.clear_form()
-            self.info_label["text"] = "Car successfully deleted from database"
+            self.info_label["text"] = "Авто успішно видалене з БД"
             self.info_label["bg"] = "Green"
         else:
-            messagebox.showerror("Error", "Please select a car to delete.")
+            messagebox.showerror("Error", "Поле ID є обовязковим..")
 
     def clear_form(self):
         self.make_entry.delete(0, tk.END)
